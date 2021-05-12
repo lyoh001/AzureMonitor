@@ -19,7 +19,7 @@ Included in this report is a step by step detailed guide around where to look fo
 
 2. From the topic it gets routed to azure queue.
 
-    - ![Figure 2.2: Step1](./.images/step2.png)
+    - ![Figure 2.2: Step2](./.images/step2.png)
 
 3. The function will get invoked and processes the business logic.
 It will
@@ -28,7 +28,7 @@ It will
     - ![Figure 2.3: Step3](./.images/step3.png)
 
 4. Events will be stored in cosmos db for a monthly analysis report.
-    - ![Figure 2.4: Step5](./.images/step4.png)
+    - ![Figure 2.4: Step4](./.images/step4.png)
 
 5. Events will be filtered based on the business requirement, then sent to logic app to process the email notifications. 
     - ![Figure 2.5: Step5](./.images/step5.png)
@@ -41,4 +41,12 @@ It will
     - user id who triggered the event 
     - event status (success/failure) 
     - subscription name
-    - ![Figure 2.6: Step7](./.images/step6.png)
+    - ![Figure 2.6: Step6](./.images/step6.png)
+
+7. Azure monitor will run kql queries for checking log analytics workspace for VM metrics. 
+    - ![Figure 2.7: Step7](./.images/step7.png)
+
+8. If the thrashold gets exceeded it will invoke the function for process.
+    - ![Figure 2.8: Step8](./.images/step8.png)
+
+9. Function will be triggered for processing.
