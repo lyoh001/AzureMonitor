@@ -2,7 +2,7 @@ name: Azure Function App
 on: [push]
 
 env:
-  AZURE_FUNCTIONAPP_NAME: "azuresubsendfuncapp"
+  AZURE_FUNCTIONAPP_NAME: "azuremonitorfuncapp"
   AZURE_FUNCTIONAPP_PACKAGE_PATH: "."
   PYTHON_VERSION: "3.8"
 
