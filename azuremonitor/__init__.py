@@ -135,6 +135,12 @@ def main(msg: func.QueueMessage) -> None:
         }
         # table_service.insert_entity(task_table, task)
         filters = [
+            payload["data"]["authorization"]["evidence"]["principalId"]
+            not in [
+                "75f443ce460a4175a70609ed6233173b",
+                "d97620314333449ca8fb5c2c151e5b8d",
+                "ae36e9b23e344b2cb0faf35a28e86638",
+            ],
             "Microsoft.Compute/restorePointCollections" not in operation_name,
             "Microsoft.Security/advancedThreatProtectionSettings" not in operation_name,
         ]
