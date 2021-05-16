@@ -141,7 +141,6 @@ def main(msg: func.QueueMessage) -> None:
                 "d97620314333449ca8fb5c2c151e5b8d",
                 "ae36e9b23e344b2cb0faf35a28e86638",
             ],
-            "Microsoft.Compute/restorePointCollections" not in operation_name,
             "Microsoft.Security/advancedThreatProtectionSettings" not in operation_name,
         ]
         if (
