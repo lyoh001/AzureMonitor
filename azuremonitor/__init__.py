@@ -140,6 +140,7 @@ def main(msg: func.QueueMessage) -> None:
                 "75f443ce460a4175a70609ed6233173b",
                 "d97620314333449ca8fb5c2c151e5b8d",
                 "ae36e9b23e344b2cb0faf35a28e86638",
+                "d772b9d2d41b41aca97282192e98bda8",
             ],
             "Microsoft.Security/advancedThreatProtectionSettings" not in operation_name,
         ]
