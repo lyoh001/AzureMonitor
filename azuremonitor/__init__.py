@@ -96,12 +96,7 @@ def main(msg: func.QueueMessage) -> None:
     subscription_name = get_subscription(
         payload["data"]["subscriptionId"], rest_api_headers
     )
-    # task_table = f"{''.join(subscription_name.split('-'))}table"
-    account_keys = os.environ["AZUREMONITOREVENTSTRGE_CONNECTION"].split(";")
     try:
-        table_service = TableService(
-            account_name=account_keys[1][12:], account_key=account_keys[2][11:]
-        )
         upn = (
             requests.get(
                 url=f"https://graph.microsoft.com/v1.0/servicePrincipals/{authorization['principalId']}",
@@ -119,21 +114,6 @@ def main(msg: func.QueueMessage) -> None:
                 "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"
             ]
         )
-        task = {
-            "PartitionKey": upn,
-            "RowKey": (id := payload["id"]),
-            "LocalEventTime": (
-                local_event_time := str(
-                    datetime.datetime.now(pytz.timezone("Australia/Melbourne"))
-                )[:-13]
-            ),
-            "CorrelationId": (correlation_id := payload["data"]["correlationId"]),
-            "OperationName": (operation_name := payload["data"]["operationName"]),
-            "ActionStatus": (action_status := payload["data"]["status"]),
-            "ResourceId": (resource_id := payload["data"]["resourceUri"]),
-            "SubscriptionName": subscription_name,
-        }
-        # table_service.insert_entity(task_table, task)
         filters = [
             payload["data"]["authorization"]["evidence"]["principalId"]
             not in [
@@ -142,7 +122,8 @@ def main(msg: func.QueueMessage) -> None:
                 "ae36e9b23e344b2cb0faf35a28e86638",
                 "d772b9d2d41b41aca97282192e98bda8",
             ],
-            "Microsoft.Security/advancedThreatProtectionSettings" not in operation_name,
+            "Microsoft.Security/advancedThreatProtectionSettings"
+            not in (operation_name := payload["data"]["operationName"]),
         ]
         if (
             all(filters)
@@ -157,15 +138,38 @@ def main(msg: func.QueueMessage) -> None:
                     json={
                         "upn": upn,
                         "id": id,
-                        "local_event_time": local_event_time,
-                        "correlation_id": correlation_id,
+                        "local_event_time": (
+                            local_event_time := str(
+                                datetime.datetime.now(
+                                    pytz.timezone("Australia/Melbourne")
+                                )
+                            )[:-13]
+                        ),
+                        "correlation_id": (
+                            correlation_id := payload["data"]["correlationId"]
+                        ),
                         "operation_name": operation_name,
-                        "action_status": action_status,
-                        "resource_id": resource_id,
+                        "action_status": (action_status := payload["data"]["status"]),
+                        "resource_id": (resource_id := payload["data"]["resourceUri"]),
                         "subscription_name": subscription_name,
                     },
                 )
             )
+            account_keys = os.environ["AZUREMONITOREVENTSTRGE_CONNECTION"].split(";")
+            table_service = TableService(
+                account_name=account_keys[1][12:], account_key=account_keys[2][11:]
+            )
+            task = {
+                "PartitionKey": upn,
+                "RowKey": (id := payload["id"]),
+                "LocalEventTime": local_event_time,
+                "CorrelationId": correlation_id,
+                "OperationName": operation_name,
+                "ActionStatus": action_status,
+                "ResourceId": resource_id,
+                "SubscriptionName": subscription_name,
+            }
+            table_service.insert_entity("azuremonitoreventtable", task)
 
     except requests.exceptions.RequestException as e:
         raise SystemExit(e)
