@@ -173,7 +173,7 @@ def main(msg: func.QueueMessage) -> None:
                 "ResourceId": resource_id,
                 "SubscriptionName": subscription_name,
             }
-            table_service.insert_entity("azuremonitoreventtable", task)
+            logging.info(table_service.insert_entity("azuremonitoreventtable", task))
 
         except requests.exceptions.RequestException as e:
             raise SystemExit(e)
