@@ -91,53 +91,57 @@ def main(msg: func.QueueMessage) -> None:
     logging.info(
         json.dumps((payload := json.loads(msg.get_body().decode("utf-8"))), indent=4)
     )
-    rest_api_headers = get_api_headers(get_rest_api_token())
-    graph_api_headers = get_api_headers(get_graph_api_token())
-    subscription_name = get_subscription(
-        payload["data"]["subscriptionId"], rest_api_headers
-    )
-    try:
-        upn = (
-            requests.get(
-                url=f"https://graph.microsoft.com/v1.0/servicePrincipals/{authorization['principalId']}",
-                headers=graph_api_headers,
-            )
-            .json()
-            .get(
-                "appDisplayName", f"Identity '{authorization['principalId']}' not found"
-            )
-            if (authorization := payload["data"]["authorization"]["evidence"])[
-                "principalType"
-            ]
-            == "ServicePrincipal"
-            else payload["data"]["claims"][
-                "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"
-            ]
+    filters = [
+        payload["data"]["authorization"]["evidence"]["principalId"]
+        not in [
+            "75f443ce460a4175a70609ed6233173b",
+            "d97620314333449ca8fb5c2c151e5b8d",
+            "ae36e9b23e344b2cb0faf35a28e86638",
+            "d772b9d2d41b41aca97282192e98bda8",
+        ],
+        "Microsoft.Security/advancedThreatProtectionSettings"
+        not in (operation_name := payload["data"]["operationName"]),
+    ]
+    if (
+        all(filters)
+        and sum(
+            True for condition in ["delete", "write"] if condition in operation_name
         )
-        filters = [
-            payload["data"]["authorization"]["evidence"]["principalId"]
-            not in [
-                "75f443ce460a4175a70609ed6233173b",
-                "d97620314333449ca8fb5c2c151e5b8d",
-                "ae36e9b23e344b2cb0faf35a28e86638",
-                "d772b9d2d41b41aca97282192e98bda8",
-            ],
-            "Microsoft.Security/advancedThreatProtectionSettings"
-            not in (operation_name := payload["data"]["operationName"]),
-        ]
-        if (
-            all(filters)
-            and sum(
-                True for condition in ["delete", "write"] if condition in operation_name
+        >= 1
+    ):
+        try:
+            rest_api_headers = get_api_headers(get_rest_api_token())
+            graph_api_headers = get_api_headers(get_graph_api_token())
+            subscription_name = get_subscription(
+                payload["data"]["subscriptionId"], rest_api_headers
             )
-            >= 1
-        ):
             logging.info(
                 requests.post(
                     url=os.environ["LOGICAPP_URI"],
                     json={
-                        "upn": upn,
-                        "id": id,
+                        "upn": (
+                            upn := (
+                                requests.get(
+                                    url=f"https://graph.microsoft.com/v1.0/servicePrincipals/{authorization['principalId']}",
+                                    headers=graph_api_headers,
+                                )
+                                .json()
+                                .get(
+                                    "appDisplayName",
+                                    f"Identity '{authorization['principalId']}' not found",
+                                )
+                                if (
+                                    authorization := payload["data"]["authorization"][
+                                        "evidence"
+                                    ]
+                                )["principalType"]
+                                == "ServicePrincipal"
+                                else payload["data"]["claims"][
+                                    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"
+                                ]
+                            )
+                        ),
+                        "id": (id := payload["id"]),
                         "local_event_time": (
                             local_event_time := str(
                                 datetime.datetime.now(
@@ -161,7 +165,7 @@ def main(msg: func.QueueMessage) -> None:
             )
             task = {
                 "PartitionKey": upn,
-                "RowKey": (id := payload["id"]),
+                "RowKey": id,
                 "LocalEventTime": local_event_time,
                 "CorrelationId": correlation_id,
                 "OperationName": operation_name,
@@ -171,5 +175,5 @@ def main(msg: func.QueueMessage) -> None:
             }
             table_service.insert_entity("azuremonitoreventtable", task)
 
-    except requests.exceptions.RequestException as e:
-        raise SystemExit(e)
+        except requests.exceptions.RequestException as e:
+            raise SystemExit(e)
