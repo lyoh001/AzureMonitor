@@ -159,21 +159,26 @@ def main(msg: func.QueueMessage) -> None:
                     },
                 )
             )
-            account_keys = os.environ["AZUREMONITOREVENTSTRGE_CONNECTION"].split(";")
-            table_service = TableService(
-                account_name=account_keys[1][12:], account_key=account_keys[2][11:]
-            )
-            task = {
-                "PartitionKey": upn,
-                "RowKey": id,
-                "LocalEventTime": local_event_time,
-                "CorrelationId": correlation_id,
-                "OperationName": operation_name,
-                "ActionStatus": action_status,
-                "ResourceId": resource_id,
-                "SubscriptionName": subscription_name,
-            }
-            logging.info(table_service.insert_entity("azuremonitoreventtable", task))
+            if "@" in upn:
+                account_keys = os.environ["AZUREMONITOREVENTSTRGE_CONNECTION"].split(
+                    ";"
+                )
+                table_service = TableService(
+                    account_name=account_keys[1][12:], account_key=account_keys[2][11:]
+                )
+                task = {
+                    "PartitionKey": upn,
+                    "RowKey": id,
+                    "LocalEventTime": local_event_time,
+                    "CorrelationId": correlation_id,
+                    "OperationName": operation_name,
+                    "ActionStatus": action_status,
+                    "ResourceId": resource_id,
+                    "SubscriptionName": subscription_name,
+                }
+                logging.info(
+                    table_service.insert_entity("azuremonitoreventtable", task)
+                )
 
         except requests.exceptions.RequestException as e:
             raise SystemExit(e)
