@@ -101,6 +101,10 @@ def main(msg: func.QueueMessage) -> None:
         ],
         "Microsoft.Security/advancedThreatProtectionSettings"
         not in (operation_name := payload["data"]["operationName"]),
+        "Microsoft.Web/serverfarms/delete"
+        not in (operation_name := payload["data"]["operationName"]),
+        "Microsoft.Web/serverFarms/write"
+        not in (operation_name := payload["data"]["operationName"]),
     ]
     if (
         all(filters)
