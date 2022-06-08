@@ -1,1 +1,12 @@
+.env
+.funcignore
+.gitignore
+.pytest_cache
 .venv
+.vscode
+__pycache__
+*.egg-info
+*.swp
+cdk.out
+local.settings.json
+package-lock.json
