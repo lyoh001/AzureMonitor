@@ -105,8 +105,6 @@ def main(msg: func.QueueMessage) -> None:
         not in (operation_name := payload["data"]["operationName"]),
         "Microsoft.Web/serverFarms/write"
         not in (operation_name := payload["data"]["operationName"]),
-        "Microsoft.Compute/virtualMachines/extensions/write"
-        not in (operation_name := payload["data"]["operationName"]),
     ]
     if (
         all(filters)
@@ -160,7 +158,8 @@ def main(msg: func.QueueMessage) -> None:
                         ),
                         "operation_name": operation_name,
                         "action_status": (action_status := payload["data"]["status"]),
-                        "resource_id": (resource_id := payload["data"]["resourceUri"]),
+                        "resource_id": (resource_id := "/".join(payload["data"]["resourceUri"].split("/")[7:])),
+                        "resourcegroup_name": payload["data"]["resourceUri"].split("/")[4],
                         "subscription_name": subscription_name,
                     },
                 )
@@ -172,8 +171,6 @@ def main(msg: func.QueueMessage) -> None:
                 table_service = TableService(
                     account_name=account_keys[1][12:], account_key=account_keys[2][11:]
                 )
-                resource_group = resource_id.split("/")[4]
-                resource_id = "/".join(resource_id.split("/")[7:])
                 task = {
                     "PartitionKey": upn,
                     "RowKey": id,
@@ -182,7 +179,6 @@ def main(msg: func.QueueMessage) -> None:
                     "OperationName": operation_name,
                     "ActionStatus": action_status,
                     "ResourceId": resource_id,
-                    "ResourceGroup": resource_group,
                     "SubscriptionName": subscription_name,
                 }
                 logging.info(
