@@ -1,0 +1,159 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Initialize_variable": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "email_body",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "runAfter": {},
+                "type": "InitializeVariable"
+            },
+            "Set_variable": {
+                "inputs": {
+                    "name": "email_body"
+                },
+                "type": "SetVariable"
+            },
+            "Switch": {
+                "cases": {
+                    "Case": {
+                        "actions": {
+                            "Send_an_email_(V2)_1": {
+                                "inputs": {
+                                    "body": {
+                                        "Body": "<p>@{variables('email_body')}</p>",
+                                        "Subject": "VICGOV App Dev Azure Monitor Alert",
+                                        "To": "lyoh001@gmail.com"
+                                    },
+                                    "host": {
+                                        "connection": {
+                                            "name": "@parameters('$connections')['office365']['connectionId']"
+                                        }
+                                    },
+                                    "method": "post",
+                                    "path": "/v2/Mail"
+                                },
+                                "runAfter": {},
+                                "type": "ApiConnection"
+                            }
+                        },
+                        "case": "CTX_APP_DEV"
+                    },
+                    "Case_2": {
+                        "actions": {
+                            "Send_an_email_(V2)": {
+                                "inputs": {
+                                    "body": {
+                                        "Body": "<p>@{variables('email_body')}</p>",
+                                        "Importance": "Normal",
+                                        "Subject": "VICGOV App Dev Azure Monitor Alert",
+                                        "To": "lyoh001@gmail.com"
+                                    },
+                                    "host": {
+                                        "connection": {
+                                            "name": "@parameters('$connections')['office365']['connectionId']"
+                                        }
+                                    },
+                                    "method": "post",
+                                    "path": "/v2/Mail"
+                                },
+                                "runAfter": {},
+                                "type": "ApiConnection"
+                            }
+                        },
+                        "case": "AppDev_CTX_Internal"
+                    }
+                },
+                "default": {
+                    "actions": {
+                        "Send_an_email_(V2)_2": {
+                            "inputs": {
+                                "body": {
+                                    "Body": "<p>@{variables('email_body')}</p>",
+                                    "Subject": "VICGOV Azure Monitor Alert",
+                                    "To": "lyoh001@gmail.com"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['office365']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "/v2/Mail"
+                            },
+                            "runAfter": {},
+                            "type": "ApiConnection"
+                        }
+                    }
+                },
+                "expression": "@triggerBody()?['subscription_name']",
+                "type": "Switch"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {
+            "$connections": {
+                "defaultValue": {},
+                "type": "Object"
+            }
+        },
+        "triggers": {
+            "manual": {
+                "inputs": {
+                    "schema": {
+                        "properties": {
+                            "action_status": {
+                                "type": "string"
+                            },
+                            "correlation_id": {
+                                "type": "string"
+                            },
+                            "id": {
+                                "type": "string"
+                            },
+                            "local_event_time": {
+                                "type": "string"
+                            },
+                            "operation_name": {
+                                "type": "string"
+                            },
+                            "resource_id": {
+                                "type": "string"
+                            },
+                            "resourcegroup_name": {
+                                "type": "string"
+                            },
+                            "subscription_name": {
+                                "type": "string"
+                            },
+                            "upn": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "kind": "Http",
+                "type": "Request"
+            }
+        }
+    },
+    "parameters": {
+        "$connections": {
+            "value": {
+                "office365": {
+                    "connectionId": "/subscriptions/id/resourceGroups/azuremonitorrg/providers/Microsoft.Web/connections/office365",
+                    "connectionName": "office365",
+                    "id": "/subscriptions/id/providers/Microsoft.Web/locations/australiaeast/managedApis/office365"
+                }
+            }
+        }
+    }
+}
