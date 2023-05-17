@@ -99,12 +99,13 @@ def main(msg: func.QueueMessage) -> None:
             "ae36e9b23e344b2cb0faf35a28e86638",
             "d772b9d2d41b41aca97282192e98bda8",
         ],
-        "Microsoft.Security/advancedThreatProtectionSettings"
-        not in (operation_name := payload["data"]["operationName"]),
-        "Microsoft.Web/serverfarms/delete"
-        not in (operation_name := payload["data"]["operationName"]),
-        "Microsoft.Web/serverFarms/write"
-        not in (operation_name := payload["data"]["operationName"]),
+        (operation_name := payload["data"]["operationName"]) not in [
+            "Microsoft.Compute/virtualMachines/extensions/write",
+            "Microsoft.OperationalInsights/workspaces/linkedServices/write",
+            "Microsoft.Security/advancedThreatProtectionSettings",
+            "Microsoft.Web/serverfarms/delete",
+            "Microsoft.Web/serverFarms/write"
+        ]
     ]
     if (
         all(filters)
