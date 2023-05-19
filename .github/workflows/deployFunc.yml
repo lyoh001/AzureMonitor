@@ -1,5 +1,5 @@
 name: Azure Function App
-on: [workflow_dispatch]
+on: [push]
 
 env:
   AZURE_FUNCTIONAPP_NAME: "azuremonitorfuncapp"
