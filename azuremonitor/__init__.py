@@ -99,7 +99,8 @@ def main(msg: func.QueueMessage) -> None:
             "ae36e9b23e344b2cb0faf35a28e86638",
             "d772b9d2d41b41aca97282192e98bda8",
             "db0eb54d596147f486e264f69f2b1b65",
-            "9a74af6fd1534348988ae2672920bee9"
+            "9a74af6fd1534348988ae2672920bee9",
+            "7f6408fc5da84830bd1ee67fa51395df"
         ],
         (operation_name := payload["data"]["operationName"]) not in [
             "Microsoft.Compute/virtualMachines/extensions/write",
