@@ -1,52 +1,54 @@
 # VICGOV - Azure Alert, Monitor, Report Workflow
+
+## Table of Contents
+1. [Introduction](#1-introduction)
+   1. [Overview](#11-overview)
+2. [Logical Architecture](#2-logical-architecture)
+   1. [Logical System Component Overview](#21-logical-system-component-overview)
+
 ## 1. Introduction
-### 1.1	Overview
+### 1.1 Overview
 
-As a result of needing to improve on cloud monitoring solution, Hosting Platform Services has been working to resolve number of issues and centralizing source of azure monitor via a workflow described in the diagram 2.1. 
- 
-This document is intended to provide a high level overview of workflow how the events captures and sends out the notifications. 
- 
-Included in this report is a step by step detailed guide around where to look for troubleshooting.
+The VICGOV - Azure Alert, Monitor, Report Workflow was developed to improve the cloud monitoring solution and address various issues. This document provides a high-level overview of the workflow for capturing events and sending out notifications. It also includes a detailed troubleshooting guide.
 
-
-
-
-## 2 Logical Architecture
-### 2.1	Logical System Component Overview
+## 2. Logical Architecture
+### 2.1 Logical System Component Overview
 ![Figure 1: Logical Architecture Overview](./.images/workflow.png)
-1. Azure events get triggered and delivered to eventgridtopic.
-    - ![Figure 2.1: Step1](./.images/step1.png)
 
-2. From the topic it gets routed to azure queue.
+The logical architecture of the VICGOV - Azure Alert, Monitor, Report Workflow is as follows:
 
-    - ![Figure 2.2: Step2](./.images/step2.png)
+1. Azure events are triggered and delivered to an event grid topic.
+   - ![Figure 2.1: Step1](./.images/step1.png)
 
-3. The function will get invoked and processes the business logic.
-It will
-    - it stores the event to the db for analysis.
-    - it filters and alerts the admins with a notifications.
-    - ![Figure 2.3: Step3](./.images/step3.png)
+2. Events from the topic are routed to an Azure queue.
+   - ![Figure 2.2: Step2](./.images/step2.png)
 
-4. Events will be stored in cosmos db for a monthly analysis report.
-    - ![Figure 2.4: Step4](./.images/step4.png)
+3. A function is invoked to process the business logic. It performs the following actions:
+   - Stores the event in a database for analysis.
+   - Filters and alerts the admins with notifications.
+   - ![Figure 2.3: Step3](./.images/step3.png)
 
-5. Events will be filtered based on the business requirement, then sent to logic app to process the email notifications. 
-    - ![Figure 2.5: Step5](./.images/step5.png)
+4. Events are stored in Cosmos DB for a monthly analysis report.
+   - ![Figure 2.4: Step4](./.images/step4.png)
 
-6. The administrators will be notified via email this notification will include 
-    - event time 
-    - event name 
-    - event id 
-    - azure resource where the event occurred 
-    - user id who triggered the event 
-    - event status (success/failure) 
-    - subscription name
-    - ![Figure 2.6: Step6](./.images/step6.png)
+5. Events are filtered based on business requirements and sent to a logic app for processing email notifications.
+   - ![Figure 2.5: Step5](./.images/step5.png)
 
-7. Azure monitor will run kql queries for checking log analytics workspace for VM metrics. 
-    - ![Figure 2.7: Step7](./.images/step7.png)
+6. Administrators are notified via email, which includes the following information:
+   - Event time
+   - Event name
+   - Event ID
+   - Azure resource where the event occurred
+   - User ID who triggered the event
+   - Event status (success/failure)
+   - Subscription name
+   - ![Figure 2.6: Step6](./.images/step6.png)
 
-8. If the thrashold gets exceeded it will invoke the function for process.
-    - ![Figure 2.8: Step8](./.images/step8.png)
+7. Azure Monitor runs KQL queries to check the log analytics workspace for VM metrics.
+   - ![Figure 2.7: Step7](./.images/step7.png)
 
-9. Function will be triggered for processing.
+8. If the threshold is exceeded, it invokes the function for further processing.
+   - ![Figure 2.8: Step8](./.images/step8.png)
+
+9. The function is triggered for processing.
+
